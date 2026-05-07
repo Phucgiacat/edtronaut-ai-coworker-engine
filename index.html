@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edtronaut AI Co-Worker | Gucci Group</title>
+    <style>
+        :root {
+            --bg-dark: #121212;
+            --panel-bg: rgba(25, 25, 25, 0.85);
+            --border-color: #333;
+            --text-main: #f0f0f0;
+            --text-muted: #888;
+            --accent: #d4af37; /* Gucci Gold */
+            --accent-hover: #e5c158;
+            --chat-user: #2a2a2a;
+            --chat-ai: rgba(212, 175, 55, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+            background-image: radial-gradient(circle at top right, rgba(212,175,55,0.05), transparent 40%),
+                              radial-gradient(circle at bottom left, rgba(255,255,255,0.02), transparent 40%);
+        }
+
+        /* Glassmorphism Panels */
+        .glass-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Layout */
+        #sidebar {
+            width: 250px;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        #chat-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        #right-panel {
+            width: 300px;
+            border-left: 1px solid var(--border-color);
+            transform: translateX(100%); /* Hidden by default */
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 10;
+        }
+
+        #right-panel.active {
+            transform: translateX(0);
+        }
+
+        /* Sidebar Styles */
+        .brand-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 30px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .npc-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .npc-btn:hover {
+            border-color: var(--accent);
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        .npc-btn.active {
+            background: rgba(212, 175, 55, 0.15);
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
+        }
+
+        .avatar-sm {
+            font-size: 1.2rem;
+        }
+
+        /* Chat Styles */
+        #chat-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        #chat-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--chat-user);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            border: 2px solid var(--accent);
+            transition: transform 0.3s ease;
+        }
+
+        #chat-history {
+            flex-grow: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .message {
+            max-width: 75%;
+            padding: 15px 20px;
+            border-radius: 12px;
+            line-height: 1.5;
+            animation: fadeIn 0.3s ease forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .msg-user {
+            background: var(--chat-user);
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+
+        .msg-ai {
+            background: var(--chat-ai);
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .emotion-tag {
+            font-size: 0.75rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        #input-area {
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+            background: var(--chat-user);
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 30px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent);
+        }
+
+        button.send-btn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 0 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button.send-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        /* Right Panel (KPI Tool) */
+        .tool-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .tool-body {
+            padding: 20px;
+        }
+
+        .kpi-input {
+            width: 100%;
+            background: var(--chat-user);
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 10px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        
+        .hint-text {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .loader {
+            align-self: flex-start;
+            display: none;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="glass-panel">
+        <div class="brand-title">Edtronaut<br><span style="color:white; font-size: 0.9rem">Job Simulator</span></div>
+        
+        <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 10px; text-transform: uppercase;">Co-Workers</p>
+        
+        <button class="npc-btn active" onclick="switchNPC('ceo')">
+            <span class="avatar-sm">💼</span> Gucci CEO
+        </button>
+        <button class="npc-btn" onclick="switchNPC('chro')">
+            <span class="avatar-sm">🤝</span> Gucci CHRO
+        </button>
+
+        <div style="margin-top: auto;">
+            <p style="color: var(--text-muted); font-size: 0.75rem;">Session: <span id="session-id"></span></p>
+            <p style="color: var(--text-muted); font-size: 0.75rem; margin-top: 5px;">UI State: <span id="ui-state-indicator" style="color: var(--accent)">chat_window</span></p>
+        </div>
+    </div>
+
+    <!-- Chat Area -->
+    <div id="chat-area">
+        <div id="chat-header" class="glass-panel">
+            <div id="chat-avatar">💼</div>
+            <div>
+                <h3 id="chat-title">Gucci Group CEO</h3>
+                <p style="font-size: 0.8rem; color: var(--text-muted);" id="chat-subtitle">Defending Group DNA</p>
+            </div>
+        </div>
+
+        <div id="chat-history">
+            <div class="message msg-ai">
+                <span class="emotion-tag">NEUTRAL</span>
+                Welcome to the Gucci Group. Let's discuss your proposed HR competency framework.
+            </div>
+        </div>
+        
+        <div class="loader" id="loader">CEO is typing...</div>
+
+        <div id="input-area" class="glass-panel">
+            <input type="text" id="chat-input" placeholder="Type your message..." onkeypress="handleEnter(event)">
+            <button class="send-btn" onclick="sendMessage()">Send</button>
+        </div>
+
+        <!-- Right Panel Tools -->
+        <div id="right-panel" class="glass-panel">
+            <div class="tool-header">
+                📊 KPI Calculator
+                <button onclick="closeTool()" style="float: right; background:none; border:none; color:white; cursor:pointer;">✕</button>
+            </div>
+            <div class="tool-body">
+                <p style="font-size: 0.9rem; margin-bottom: 15px;">Input your proposed metrics across the 4 Core Themes:</p>
+                <label style="font-size: 0.8rem; color: var(--text-muted)">Metric 1 Name</label>
+                <input type="text" class="kpi-input" placeholder="e.g. Employee Retention" onclick="updateUIState('kpi_calculator')">
+                
+                <label style="font-size: 0.8rem; color: var(--text-muted)">Metric 2 Name</label>
+                <input type="text" class="kpi-input" placeholder="e.g. Inter-brand Mobility" onclick="updateUIState('kpi_calculator')">
+                
+                <p class="hint-text">*Hint: The AI Co-worker knows when you are using this tool!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const sessionId = "sess_" + Math.floor(Math.random() * 10000);
+        document.getElementById('session-id').innerText = sessionId;
+
+        let currentNpc = 'ceo';
+        let uiState = 'chat_window';
+
+        const npcData = {
+            'ceo': { title: 'Gucci Group CEO', sub: 'Defending Group DNA', icon: '💼' },
+            'chro': { title: 'Gucci Group CHRO', sub: 'Talent & Competency', icon: '🤝' }
+        };
+
+        const emotionIcons = {
+            'neutral': '😐',
+            'angry': '😠',
+            'pleased': '😊',
+            'thinking': '🤔'
+        };
+
+        function switchNPC(npc) {
+            currentNpc = npc;
+            
+            // Update UI buttons
+            document.querySelectorAll('.npc-btn').forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            // Update Header
+            document.getElementById('chat-title').innerText = npcData[npc].title;
+            document.getElementById('chat-subtitle').innerText = npcData[npc].sub;
+            document.getElementById('chat-avatar').innerText = npcData[npc].icon;
+        }
+
+        function updateUIState(state) {
+            uiState = state;
+            document.getElementById('ui-state-indicator').innerText = state;
+            if(state === 'kpi_calculator') {
+                document.getElementById('right-panel').classList.add('active');
+            } else {
+                document.getElementById('right-panel').classList.remove('active');
+            }
+        }
+
+        function closeTool() {
+            updateUIState('chat_window');
+        }
+
+        function appendMessage(text, sender, emotion = null) {
+            const history = document.getElementById('chat-history');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${sender === 'user' ? 'msg-user' : 'msg-ai'}`;
+            
+            if (emotion) {
+                msgDiv.innerHTML = `<span class="emotion-tag">${emotion}</span>${text}`;
+                // Animate avatar based on emotion
+                const avatar = document.getElementById('chat-avatar');
+                avatar.innerText = emotionIcons[emotion.toLowerCase()] || npcData[currentNpc].icon;
+                avatar.style.transform = 'scale(1.2)';
+                setTimeout(() => avatar.style.transform = 'scale(1)', 300);
+            } else {
+                msgDiv.innerText = text;
+            }
+            
+            history.appendChild(msgDiv);
+            history.scrollTop = history.scrollHeight;
+        }
+
+        function handleEnter(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            appendMessage(text, 'user');
+            input.value = '';
+            
+            document.getElementById('loader').style.display = 'block';
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        message: text,
+                        current_npc: currentNpc,
+                        ui_state: uiState
+                    })
+                });
+
+                const data = await response.json();
+                document.getElementById('loader').style.display = 'none';
+
+                const aiResp = data.response;
+                
+                // Trigger UI actions
+                if(aiResp.ui_trigger === 'open_kpi_calculator') {
+                    updateUIState('kpi_calculator');
+                }
+
+                appendMessage(aiResp.dialogue, 'ai', aiResp.emotion);
+
+            } catch (err) {
+                document.getElementById('loader').style.display = 'none';
+                appendMessage('Connection error. Is FastAPI running?', 'ai', 'angry');
+            }
+        }
+    </script>
+</body>
+</html>
