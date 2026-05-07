@@ -13,6 +13,7 @@ An Enterprise-grade "AI Co-Worker" simulation prototype built for the **Edtronau
 5. **Memory Summarization**: A dedicated LangGraph node summarizes long conversations to prevent context window overflows and reduce API costs.
 
 ## 🛠️ Tech Stack
+
 - **Backend Model**: Google Gemini (`gemini-2.5-flash`) via `langchain-google-genai`.
 - **Orchestration**: **LangGraph** (State Machine) & **LangChain**.
 - **API Framework**: **FastAPI** (with CORS and static file rendering).
@@ -21,29 +22,24 @@ An Enterprise-grade "AI Co-Worker" simulation prototype built for the **Edtronau
 ## 🚀 How to Run Locally
 
 1. **Clone the repository:**
+
    ```bash
    git clone https://github.com/Phucgiacat/edtronaut-ai-coworker-engine.git
    cd edtronaut-ai-coworker-engine
    ```
-
 2. **Set up a Virtual Environment & Install Dependencies:**
+
    ```bash
    python -m venv venv
    source venv/Scripts/activate  # On Windows PowerShell
    pip install -r requirements.txt
    ```
-
 3. **Start the FastAPI Server:**
+
    ```bash
    python main.py
    ```
-   *(Note: A valid Google Gemini API Key is embedded in the prototype for demo purposes. If it expires, please replace `GOOGLE_API_KEY` in `main.py`).*
 
+   *(Note: A valid Google Gemini API Key is embedded in the prototype for demo purposes. If it expires, please replace `GOOGLE_API_KEY` in `main.py`).*
 4. **Experience the UI:**
    Open your browser and navigate to: **`http://localhost:8000`**
-
-## 📂 NotebookLM Report Generation
-If you want to generate a detailed report based on this codebase, simply upload the `notebooklm_context.txt` file (included in this repo) to Google NotebookLM! It contains the entire consolidated context of the system architecture.
-
----
-*Built as a prototype for the Edtronaut Job Simulation Platform.*
